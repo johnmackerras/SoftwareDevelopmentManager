@@ -2,7 +2,37 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+
+@if (TempData["StatusMessage"] is string msg)
+{
+    <div class="alert alert-success mt-3" role="alert">@msg</div>
+}
+
+<!-- Scan Solutions -->
+
+<table class="table mt-5">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Task</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row">0</th>
+            <td class="align-middle">
+                Scan Solutions (C:\Development)
+            </td>
+            <td>
+                <form asp-controller="Home" asp-action="ScanSolutions" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="align-middle btn btn-outline-success">
+                        Run scan
+                    </button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>

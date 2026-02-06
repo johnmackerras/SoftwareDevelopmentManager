@@ -1,6 +1,10 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SolutionManager.Models;
+using SolutionManager.Models.System;
+using SolutionManagerDatabase.Services;
+using System.Diagnostics;
+using System.Threading;
+using SolutionManagerDatabase.Services;
+using System.Threading.Tasks;
 
 namespace SolutionManager.Controllers
 {
@@ -11,10 +15,16 @@ namespace SolutionManager.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ScanSolutions([FromServices] ISolutionScanService scan, CancellationToken ct)
         {
-            return View();
+            var touched = await scan.ScanAllRepositoriesAsync(ct);
+            TempData["StatusMessage"] = $"Scan complete. Solutions touched: {touched}.";
+            return RedirectToAction(nameof(Index));
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

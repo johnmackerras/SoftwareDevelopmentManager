@@ -1,39 +1,89 @@
-I am writing a new c# solution called "Software Development Manager".
+I am writing a new c# solution called "Software Development Manager". I need oyu to help me write the code.
 
 It has three c# projects:
 1 - SolutionManager
-    The Asp.NET MVC .net10 app designed to allow me to take control of my 7-odd app develments and to find parts easilly
-    
+    The Asp.NET MVC .net10 app designed to allow me to take control of my 7-odd app developments and to find parts easily
+        
 2 - SolutionManagerDatabase
-    The EntityFramework MS-SQL datastore
+    The EntityFramework MS-SQL datastore. It's folder structure is:
+    \Configure  - contains EF fluent cofiguration files
+    \Context - Contains the EF context
+    \Schema - contains the database schema classes
+    \Services - contains services which write data in and out of the datastore
     
+   
 3 - Terrafirma.Core
-    Common components
+    Common components.
+    
     
 SolutionManager has a dependancy on SolutionManagerDatabase & Terrafirma.Core
 SolutionManagerDatabase has a dependancy on Terrafirma.Core
 
 
-It's purppose is to read the source code of my projects and datbase specific aspects so I can see current and historical methods.
+It's purpose is to read the source code of my projects and database specific aspects so I can see current and historical methods.
 
 All source code is kept on one root directory on the computer.
     "GitRootPath": "C:\\Development",
     
-This folder contains all repositoris from this GithubRoot    
+This folder contains all repositories from this GithubRoot    
     "DefaultRemoteRepoRootUrl": "https://github.com/johnmackerras/",
     
 
 When giving me code to paste into this application, be clear on which file is to be created/edited and what my action is, give me speciifc instructions (find this code, do this action). DO NOT be abstract, DO NOT provide non-functioning code. DO take your time to make sure code is correct first time.
 
-Keep your responses brief and to the point. DO NOT provide long explainations, although short, oone to two sentaces may be appropriate in context.
+Keep your responses brief and to the point. DO NOT provide long explanations, although short, one to two sentences may be appropriate in context.
   
 
 Application behaviour
-- When recording file paths in the database, save the relative path in cluding filename.extension, so you can always get the local by calcualting GitRootPath + relative filepath
-
-
+- When recording file paths in the database, save the relative path including filename.extension, so you can always get the local by calculating GitRootPath + relative file path
 
 
 Task 1 is to get a list of all Repositories on the local disk. The name of each folder under GitRootPath is the Repository Name
 
+We need to create Solution Scanning service, which does the following:
+
+1. Get the Repository ifnormation
+
+- Gets the list of folders under GitRootPath. Each folder represents a Github repository.
+- if the .git directory exists, extract
+  -- RepositoryName
+  -- RepositoryUrl
+  -- RepositoryProvider
+  -- IsPrivateRepo
+  -- GitFirstCommitUtc
+  -- GitLastCommitUtc
+  -- GitHeadSha
+  -- DefaultBranch
+  -- CurrentBranch
+  
+If the RepositoryName cannot be extracted from the .git, the use the Foldername instead.
+
+2. Gets the solution information
+If the solution is a c# solution, the repo direcotry should contain either a *.sln or *.slnx file to read. It could be a .NetFramwork, .Net or .NetCore solution.
+Ee need to collect this information about the solution.
+
+Name 
+Description - extracted from the reeadme.md is available
+
+CreatedOn  - probably from .git if notwhere else
+
+SolutionFilePath // relative to repo root, e.g. "DevHelper.sln"
+SolutionFile  // e.g. "DevHelper.sln"
+ProjectType { get; set; }       // freeform: "MVC", "MAUI", "JS"
+RuntimePlatform { get; set; }   // ".NET", "Node.js"
+RuntimeVersion { get; set; }    // "10.0"
+
+3. We should be able to then get a list of projects fromthe soluton file.
+That should contain a .csproj file, which should help us indentify these
+
+RelativeProjectPath { get; set; } = null!;
+ProjectType { get; set; }
+TargetFrameworks { get; set; }
+
+Platform { get; set; }
+UiStack { get; set; }
+
+IsWebApp { get; set; }
+IsClassLibrary { get; set; }
+IsTestProject { get; set; }
 

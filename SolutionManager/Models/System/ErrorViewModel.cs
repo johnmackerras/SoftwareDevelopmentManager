@@ -1,4 +1,4 @@
-namespace SolutionManager.Models
+namespace SolutionManager.Models.System
 {
     public class ErrorViewModel
     {
