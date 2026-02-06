@@ -14,6 +14,7 @@ namespace SolutionManagerDatabase.Context
         public DbSet<DbSolution> Solutions { get; set; }
         public DbSet<DbProject> DevProjects { get; set; }
         public DbSet<DbArtifact> Artifacts { get; set; }
+        public DbSet<DbControllerAction> ControllerActions { get; set; }
 
 
 
