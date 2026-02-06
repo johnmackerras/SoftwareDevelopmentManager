@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SolutionManagerDatabase\SolutionManagerDatabase.csproj" />
+    <ProjectReference Include="..\Terrafirma.Core\Terrafirma.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,39 @@
+I am writing a new c# solution called "Software Development Manager".
+
+It has three c# projects:
+1 - SolutionManager
+    The Asp.NET MVC .net10 app designed to allow me to take control of my 7-odd app develments and to find parts easilly
+    
+2 - SolutionManagerDatabase
+    The EntityFramework MS-SQL datastore
+    
+3 - Terrafirma.Core
+    Common components
+    
+SolutionManager has a dependancy on SolutionManagerDatabase & Terrafirma.Core
+SolutionManagerDatabase has a dependancy on Terrafirma.Core
+
+
+It's purppose is to read the source code of my projects and datbase specific aspects so I can see current and historical methods.
+
+All source code is kept on one root directory on the computer.
+    "GitRootPath": "C:\\Development",
+    
+This folder contains all repositoris from this GithubRoot    
+    "DefaultRemoteRepoRootUrl": "https://github.com/johnmackerras/",
+    
+
+When giving me code to paste into this application, be clear on which file is to be created/edited and what my action is, give me speciifc instructions (find this code, do this action). DO NOT be abstract, DO NOT provide non-functioning code. DO take your time to make sure code is correct first time.
+
+Keep your responses brief and to the point. DO NOT provide long explainations, although short, oone to two sentaces may be appropriate in context.
+  
+
+Application behaviour
+- When recording file paths in the database, save the relative path in cluding filename.extension, so you can always get the local by calcualting GitRootPath + relative filepath
+
+
+
+
+Task 1 is to get a list of all Repositories on the local disk. The name of each folder under GitRootPath is the Repository Name
+
+

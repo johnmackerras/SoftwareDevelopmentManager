@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Apps/">
+    <Project Path="SolutionManager/SolutionManager.csproj" />
+  </Folder>
+  <Project Path="SolutionManagerDatabase/SolutionManagerDatabase.csproj" />
+  <Project Path="Terrafirma.Core/Terrafirma.Core.csproj" />
+</Solution>
