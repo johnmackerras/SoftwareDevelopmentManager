@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace SolutionManagerDatabase.Schema;
 
@@ -26,4 +28,8 @@ public sealed class DbProject
     public bool IsTestProject { get; set; }
 
     public DateTime UpdatedOnUtc { get; set; } = DateTime.UtcNow;
+
+    public List<DbArtifact> Artifacts { get; set; } = new();
+
+
 }

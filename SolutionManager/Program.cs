@@ -18,6 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.Configure<SolutionManagerOptions>(builder.Configuration.GetSection("SolutionManager"));
 
 builder.Services.AddScoped<ISolutionScanService, SolutionScanService>();
+builder.Services.AddScoped<IArtifactScanService, ArtifactScanService>();
 
 
 var app = builder.Build();

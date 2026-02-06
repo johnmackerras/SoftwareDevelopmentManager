@@ -25,13 +25,16 @@ public sealed class SolutionScanService : ISolutionScanService
 {
     private readonly ApplicationDbContext _db;
     private readonly SolutionManagerOptions _opt;
+    private readonly IArtifactScanService _artifactScan;
 
     public SolutionScanService(
         ApplicationDbContext db,
-        IOptions<SolutionManagerOptions> opt)
+        IOptions<SolutionManagerOptions> opt,
+        IArtifactScanService artifactScan)
     {
         _db = db;
         _opt = opt.Value;
+        _artifactScan = artifactScan;
     }
 
     public async Task<int> ScanAllRepositoriesAsync(CancellationToken ct = default)
@@ -114,7 +117,15 @@ public sealed class SolutionScanService : ISolutionScanService
                 solRow.CreatedOnUtc ??= repoRow.GitFirstCommitUtc;
 
                 // Projects from solution
-                UpsertProjectsFromSolution(repoDir, solRow, slnPath, now);
+                UpsertProjectsFromSolution(gitRoot, repoDir, solRow, slnPath, now);
+
+                // Artifacts (Controllers, DbContexts, Services, Classes) for each project in this solution
+                foreach (var proj in solRow.Projects)
+                {
+                    await _db.SaveChangesAsync(ct); // ensure proj.Id exists before artifact insert
+                    await _artifactScan.ScanProjectArtifactsAsync(_opt.GitRootPath, repoDir, proj, ct);
+                }
+
 
                 // Runtime derived from projects
                 DeriveSolutionRuntime(solRow);
@@ -202,7 +213,7 @@ public sealed class SolutionScanService : ISolutionScanService
             .Concat(Directory.EnumerateFiles(repoDir, "*.slnx", SearchOption.AllDirectories));
     }
 
-    private static void UpsertProjectsFromSolution(string repoDir, DbSolution solRow, string slnPath, DateTime nowUtc)
+    private static void UpsertProjectsFromSolution(string gitRoot, string repoDir, DbSolution solRow, string slnPath, DateTime nowUtc)
     {
         SolutionFile sln;
         try
@@ -228,17 +239,17 @@ public sealed class SolutionScanService : ISolutionScanService
             var csprojFull = Path.GetFullPath(Path.Combine(slnDir, relFromSlnDir));
             if (!File.Exists(csprojFull)) continue;
 
-            var relToRepo = NormalizeRelPath(Path.GetRelativePath(repoDir, csprojFull));
+            var relToGitRoot = NormalizeRelPath(Path.GetRelativePath(gitRoot, csprojFull));
             var name = Path.GetFileNameWithoutExtension(csprojFull);
 
-            var projRow = solRow.Projects.SingleOrDefault(p => p.RelativeProjectPath == relToRepo);
+            var projRow = solRow.Projects.SingleOrDefault(p => p.RelativeProjectPath == relToGitRoot);
             if (projRow == null)
             {
                 projRow = new DbProject
                 {
                     Solution = solRow,
                     Name = name,
-                    RelativeProjectPath = relToRepo,
+                    RelativeProjectPath = relToGitRoot,
                     UpdatedOnUtc = nowUtc
                 };
                 solRow.Projects.Add(projRow);

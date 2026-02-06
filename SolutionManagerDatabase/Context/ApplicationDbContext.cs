@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SolutionManagerDatabase.Schema;
+using System.Collections.Generic;
 
 namespace SolutionManagerDatabase.Context
 {
@@ -12,6 +13,9 @@ namespace SolutionManagerDatabase.Context
         public DbSet<DbRepository> Repositories { get; set; }
         public DbSet<DbSolution> Solutions { get; set; }
         public DbSet<DbProject> DevProjects { get; set; }
+        public DbSet<DbArtifact> Artifacts { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
