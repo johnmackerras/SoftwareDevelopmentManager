@@ -27,17 +27,20 @@ public sealed class SolutionScanService : ISolutionScanService
     private readonly SolutionManagerOptions _opt;
     private readonly IArtifactScanService _artifactScan;
     private readonly IControllerActionScanService _controllerActionScan;
+    private readonly IDbSetScanService _dbSetScan;
 
     public SolutionScanService(
         ApplicationDbContext db,
         IOptions<SolutionManagerOptions> opt,
         IArtifactScanService artifactScan,
-        IControllerActionScanService controllerActionScan)
+        IControllerActionScanService controllerActionScan,
+        IDbSetScanService dbSetScan)
     {
         _db = db;
         _opt = opt.Value;
         _artifactScan = artifactScan;
         _controllerActionScan = controllerActionScan;
+        _dbSetScan = dbSetScan;
     }
 
     public async Task<int> ScanAllRepositoriesAsync(CancellationToken ct = default)
@@ -125,12 +128,16 @@ public sealed class SolutionScanService : ISolutionScanService
                 // Artifacts (Controllers, DbContexts, Services, Classes) for each project in this solution
                 foreach (var proj in solRow.Projects)
                 {
-                    await _db.SaveChangesAsync(ct); // ensure proj.Id exists
+                    await _db.SaveChangesAsync(ct);
                     await _artifactScan.ScanProjectArtifactsAsync(_opt.GitRootPath, repoDir, proj, ct);
 
-                    await _db.SaveChangesAsync(ct); // ensure artifacts exist before actions scan
+                    await _db.SaveChangesAsync(ct); // artifacts must exist
+                    await _dbSetScan.ScanProjectDbSetsAsync(_opt.GitRootPath, proj, ct);
+
+                    await _db.SaveChangesAsync(ct); // actions depend on controller artifacts
                     await _controllerActionScan.ScanProjectControllerActionsAsync(_opt.GitRootPath, proj, ct);
                 }
+
 
 
 

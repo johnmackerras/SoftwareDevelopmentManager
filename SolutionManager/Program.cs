@@ -20,6 +20,7 @@ builder.Services.Configure<SolutionManagerOptions>(builder.Configuration.GetSect
 builder.Services.AddScoped<ISolutionScanService, SolutionScanService>();
 builder.Services.AddScoped<IArtifactScanService, ArtifactScanService>();
 builder.Services.AddScoped<IControllerActionScanService, ControllerActionScanService>();
+builder.Services.AddScoped<IDbSetScanService, DbSetScanService>();
 
 
 var app = builder.Build();
