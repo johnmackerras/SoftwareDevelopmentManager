@@ -15,13 +15,29 @@ public sealed class DbArtifact
 
     public string? Namespace { get; set; }
     public string? ClassName { get; set; }                  // e.g. "ContactsController"
+    public string? BaseClassName { get; set; }
 
     public string LogicalName { get; set; } = null!;        // e.g. "ContactsController"
     public string FileName { get; set; } = null!;           // e.g. "ContactsController.cs"
+
     public string? Module { get; set; }                     // e.g. "Contact"
     public string? Visibility { get; set; }                 // "Schema"/"Domain"/"Viewmodel"
     public string? Feature { get; set; }
+    public string? LogicalClassKey { get; set; }
+
+
+    public bool IsPartial { get; set; }
+    public bool IsAbstract { get; set; }
+    public bool IsStatic { get; set; }
+    public string? InterfacesRaw { get; set; }              // "IDisposable, IFoo"
+
+
     public string RelativeFilePath { get; set; } = null!;   // repo-relative, e.g. "DevHelper/Controllers/ContactsController.cs"
+        public long? FileSizeBytes { get; set; }
+    public DateTime? FileLastWriteUtc { get; set; }
+    public string? FileSha256 { get; set; } // hex
+
+
 
 
 
@@ -31,10 +47,6 @@ public sealed class DbArtifact
 
 
 
-    public bool IsPartial { get; set; }
-    public bool IsAbstract { get; set; }
-    public bool IsStatic { get; set; }
-    public string? InterfacesRaw { get; set; }              // "IDisposable, IFoo"
 
 
     public int SpanStart { get; set; }    // Roslyn node start (unique per declaration in a file)       - Character position where the class begins

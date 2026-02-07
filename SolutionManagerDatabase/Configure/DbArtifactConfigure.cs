@@ -19,6 +19,10 @@ public sealed class DbArtifactConfigure : IEntityTypeConfiguration<DbArtifact>
         b.Property(x => x.LogicalName).HasMaxLength(256).IsRequired();
         b.Property(x => x.FileName).HasMaxLength(256).IsRequired();
         b.Property(x => x.RelativeFilePath).HasMaxLength(1024).IsRequired();
+        b.Property(x => x.FileSizeBytes);
+        b.Property(x => x.FileLastWriteUtc);
+        b.Property(x => x.FileSha256).HasMaxLength(64);
+
 
         b.Property(x => x.Module).HasMaxLength(50);
         b.Property(x => x.Visibility).HasMaxLength(50);
@@ -29,6 +33,12 @@ public sealed class DbArtifactConfigure : IEntityTypeConfiguration<DbArtifact>
         b.Property(x => x.IsAbstract).IsRequired();
         b.Property(x => x.IsStatic).IsRequired();
         b.Property(x => x.InterfacesRaw).HasMaxLength(1024);
+
+        b.Property(x => x.LogicalClassKey).HasMaxLength(1024);
+        b.HasIndex(x => x.LogicalClassKey);
+
+        b.Property(x => x.BaseClassName).HasMaxLength(256);
+
 
         b.HasIndex(x => new { x.ProjectId, x.RelativeFilePath, x.LogicalName, x.SpanStart }).IsUnique();
 

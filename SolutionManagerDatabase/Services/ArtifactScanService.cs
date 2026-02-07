@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +18,6 @@ namespace SolutionManagerDatabase.Services;
 public interface IArtifactScanService
 {
     Task<int> ScanProjectArtifactsAsync(string gitRootPath, string repoDir, DbProject project, CancellationToken ct = default);
-
 
 }
 
@@ -95,6 +95,11 @@ public sealed class ArtifactScanService : IArtifactScanService
 
                 var relFile = NormalizeRelPath(Path.GetRelativePath(gitRootPath, file));
 
+                var fullPath = Path.GetFullPath(Path.Combine(gitRootPath, relFile.Replace('/', Path.DirectorySeparatorChar)));
+
+                (long? sizeBytes, DateTime? lastWriteUtc, string? sha256) = TryGetFileIdentity(fullPath);
+
+
                 var (artifactType, artifactSubType, baseTypeName) = ClassifyArtifactType(className, relFile, cls);
 
 
@@ -112,7 +117,10 @@ public sealed class ArtifactScanService : IArtifactScanService
                     IsPartial = cls.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)),
                     SpanStart = cls.SpanStart,
                     SpanLength = cls.Span.Length,
-                    UpdatedOnUtc = now
+                    UpdatedOnUtc = now,
+                    FileSizeBytes = sizeBytes,
+                    FileLastWriteUtc = lastWriteUtc,
+                    FileSha256 = sha256,
                 });
 
             }
@@ -143,6 +151,9 @@ public sealed class ArtifactScanService : IArtifactScanService
                 ex.Namespace = f.Namespace;
                 ex.ClassName = f.ClassName;
                 ex.UpdatedOnUtc = now;
+                ex.FileSizeBytes = f.FileSizeBytes;
+                ex.FileLastWriteUtc = f.FileLastWriteUtc;
+                ex.FileSha256 = f.FileSha256;
             }
             else
             {
@@ -152,6 +163,27 @@ public sealed class ArtifactScanService : IArtifactScanService
 
         return found.Count;
     }
+
+    private static (long? SizeBytes, DateTime? LastWriteUtc, string? Sha256) TryGetFileIdentity(string fullPath)
+    {
+        try
+        {
+            var fi = new FileInfo(fullPath);
+            if (!fi.Exists) return (null, null, null);
+
+            using var stream = File.OpenRead(fullPath);
+            using var sha = SHA256.Create();
+            var hash = sha.ComputeHash(stream);
+
+            var hex = Convert.ToHexString(hash).ToLowerInvariant();
+            return (fi.Length, fi.LastWriteTimeUtc, hex);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
 
     private static IEnumerable<string> EnumerateCsFiles(string rootDir)
     {
