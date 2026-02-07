@@ -15,14 +15,14 @@ public sealed class DbSolutionConfigure : IEntityTypeConfiguration<DbSolution>
         b.Property(x => x.Name).HasMaxLength(256).IsRequired();
         b.Property(x => x.Description).HasMaxLength(4000);
 
-        b.Property(x => x.SolutionFilePath).HasMaxLength(1024).IsRequired();
-        b.Property(x => x.SolutionFile).HasMaxLength(256).IsRequired();
+        b.Property(x => x.SolutionFilePath).HasMaxLength(1024);
+        b.Property(x => x.SolutionFile).HasMaxLength(256);
 
         b.Property(x => x.ProjectType).HasMaxLength(64);
         b.Property(x => x.RuntimePlatform).HasMaxLength(64);
         b.Property(x => x.RuntimeVersion).HasMaxLength(32);
 
-        b.HasIndex(x => new { x.RepositoryId, x.SolutionFilePath }).IsUnique();
+        b.HasIndex(x => x.RepositoryId);
 
         b.HasMany(x => x.Projects)
             .WithOne(x => x.Solution)

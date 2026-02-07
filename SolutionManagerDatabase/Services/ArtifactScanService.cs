@@ -105,6 +105,7 @@ public sealed class ArtifactScanService : IArtifactScanService
                     ArtifactSubType = artifactSubType,
                     BaseTypeName = baseTypeName,
                     LogicalName = className,
+                    FileName = Path.GetFileName(relFile),
                     RelativeFilePath = relFile,
                     Namespace = fileNs,
                     ClassName = className,

@@ -27,6 +27,9 @@ So I think what we need to do (please offer advice) is:
 At the start write a quick note describing the files types the function is looking for so I can read it later and remeber what it is doing.
 
 
-FYI: The next step after is to dive deeper into databearing classes such as EF schema models, domain models etc, but I'll get to that
+FYI: The next step after is to dive deeper into databearing classes such as EF schema models, domain models etc, & Controller ROuting but I'll get to that
+
+Offer any thougts before starting code
 
 
+SqlException: Cannot insert duplicate key row in object 'dbo.Artifacts' with unique index 'IX_Artifacts_ProjectId_RelativeFilePath_LogicalName'. The duplicate key value is (147, Terrafirma.Services/Regions/Postcodes.cs, UKCounties).

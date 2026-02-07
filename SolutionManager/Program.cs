@@ -21,6 +21,8 @@ builder.Services.AddScoped<ISolutionScanService, SolutionScanService>();
 builder.Services.AddScoped<IArtifactScanService, ArtifactScanService>();
 builder.Services.AddScoped<IControllerActionScanService, ControllerActionScanService>();
 builder.Services.AddScoped<IDbSetScanService, DbSetScanService>();
+builder.Services.AddScoped<IClassMemberScanService, ClassMemberScanService>();
+builder.Services.AddScoped<IGroupingResolverService, GroupingResolverService>();
 
 
 var app = builder.Build();

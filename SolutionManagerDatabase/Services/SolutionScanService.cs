@@ -28,19 +28,25 @@ public sealed class SolutionScanService : ISolutionScanService
     private readonly IArtifactScanService _artifactScan;
     private readonly IControllerActionScanService _controllerActionScan;
     private readonly IDbSetScanService _dbSetScan;
+    private readonly IClassMemberScanService _classMemberScan;
+    private readonly IGroupingResolverService _groupingResolver;
 
     public SolutionScanService(
         ApplicationDbContext db,
         IOptions<SolutionManagerOptions> opt,
         IArtifactScanService artifactScan,
         IControllerActionScanService controllerActionScan,
-        IDbSetScanService dbSetScan)
+        IDbSetScanService dbSetScan,
+        IClassMemberScanService classMemberScan,
+        IGroupingResolverService groupingResolver)
     {
         _db = db;
         _opt = opt.Value;
         _artifactScan = artifactScan;
         _controllerActionScan = controllerActionScan;
         _dbSetScan = dbSetScan;
+        _classMemberScan = classMemberScan;
+        _groupingResolver = groupingResolver;
     }
 
     public async Task<int> ScanAllRepositoriesAsync(CancellationToken ct = default)
@@ -86,6 +92,38 @@ public sealed class SolutionScanService : ISolutionScanService
 
             // Solutions in this repo (prefer .sln/.slnx)
             var solutions = FindSolutions(repoDir).ToList();
+
+            // If no solution files found, create a stub solution entry
+            if (solutions.Count == 0)
+            {
+                var stubSlnRelativePath = $"{folderName}.sln"; // Virtual path
+
+                var solRow = repoRow.Solutions.SingleOrDefault(s => s.SolutionFilePath == stubSlnRelativePath);
+                if (solRow == null)
+                {
+                    solRow = new DbSolution
+                    {
+                        Repository = repoRow,
+                        Name = folderName,
+                        ProjectType = "non-c#",
+                        UpdatedOnUtc = now
+                    };
+                    repoRow.Solutions.Add(solRow);
+                }
+                else
+                {
+                    solRow.Name = folderName;
+                    solRow.UpdatedOnUtc = now;
+                }
+
+                // Description from README.md at repo root
+                solRow.Description ??= TryReadReadmeDescription(repoDir);
+
+                // CreatedOn from first commit if available
+                solRow.CreatedOnUtc ??= repoRow.GitFirstCommitUtc;
+
+                touched++;
+            }
 
             // Remove missing solutions (optional; keep simple for now: we only upsert found ones)
             foreach (var slnPath in solutions)
@@ -136,10 +174,14 @@ public sealed class SolutionScanService : ISolutionScanService
 
                     await _db.SaveChangesAsync(ct); // actions depend on controller artifacts
                     await _controllerActionScan.ScanProjectControllerActionsAsync(_opt.GitRootPath, proj, ct);
+
+                    await _db.SaveChangesAsync(ct);
+                    await _artifactScan.ScanProjectArtifactsAsync(_opt.GitRootPath, repoDir, proj, ct);
+
+                    await _db.SaveChangesAsync(ct); // artifacts IDs exist
+                    await _classMemberScan.ScanProjectClassMembersAsync(_opt.GitRootPath, proj, ct);
+
                 }
-
-
-
 
                 // Runtime derived from projects
                 DeriveSolutionRuntime(solRow);
@@ -147,6 +189,9 @@ public sealed class SolutionScanService : ISolutionScanService
                 touched++;
             }
         }
+
+        await _db.SaveChangesAsync(ct); // ensure artifacts exist
+        await _groupingResolver.ResolveGroupingsAsync(ct);
 
         await _db.SaveChangesAsync(ct);
         return touched;
@@ -182,7 +227,8 @@ public sealed class SolutionScanService : ISolutionScanService
             : CombineUrl(_opt.DefaultRemoteRepoRootUrl, repoRow.RepositoryName);
 
         repoRow.RepositoryProvider = InferProvider(repoRow.RepositoryUrl);
-        repoRow.IsPrivateRepo = null; // cannot reliably infer without talking to provider
+
+        //repoRow.IsPrivateRepo = null; // use default value
 
         var head = repo.Head;
         repoRow.CurrentBranch = repo.Info.IsHeadDetached ? "(detached)" : head.FriendlyName;
@@ -548,7 +594,7 @@ public sealed class SolutionScanService : ISolutionScanService
 
         var s = tfm.Substring(3);
 
-        // handle TFMs like "7.0-ios", "8.0-android", "10.0-windows10.0.19041.0"
+        // handle TFMs like "7.0-ios", "8.0-android", "10.0-windows10.0"
         var dash = s.IndexOf('-');
         if (dash >= 0)
             s = s.Substring(0, dash);

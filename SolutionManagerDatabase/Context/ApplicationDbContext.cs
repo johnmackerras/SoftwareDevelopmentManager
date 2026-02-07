@@ -16,7 +16,11 @@ namespace SolutionManagerDatabase.Context
         public DbSet<DbArtifact> Artifacts { get; set; }
         public DbSet<DbControllerAction> ControllerActions { get; set; }
         public DbSet<DbDbSet> DbSets { get; set; }
+        public DbSet<DbClassMember> ClassMembers => Set<DbClassMember>();
 
+
+
+        public DbSet<DbGroupingOverride> GroupingOverrides => Set<DbGroupingOverride>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

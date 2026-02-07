@@ -12,7 +12,7 @@ public sealed class DbRepository
 
     public string? RepositoryUrl { get; set; }
     public string? RepositoryProvider { get; set; } // e.g. "GitHub"
-    public bool? IsPrivateRepo { get; set; } // cannot be reliably inferred offline
+    public bool? IsPrivateRepo { get; set; } = true; // cannot be reliably inferred offline
 
     public DateTime? GitFirstCommitUtc { get; set; }
     public DateTime? GitLastCommitUtc { get; set; }

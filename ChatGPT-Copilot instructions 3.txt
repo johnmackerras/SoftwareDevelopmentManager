@@ -1,0 +1,56 @@
+What I am working otowards is the ability to look at a particular class across all of the projects, lets say:
+    public abstract class DbContact : DbBaseEntity
+
+Ultimately we will define a report which will show me at Module level, which classes belong to that module and which fields are in that class and the properties of the class.
+
+I will need to group these classes accross the modules. I am writing - to giev you an indication - I have a Contact module, a marketing module, a listing module, etc. For the most part this is manual entry by me but some can be inferred by scan. For example I can tell you that anything called 'this' belongs in the contacts module.
+
+
+This report will show me somethign like;
+
+Header
+Module: Contact
+Class: Address
+
+Then I am looking for a table which shows me in column 1, all of the fields which appear in that class across all of the Repositories (in Order of presentation).
+Then for the next column it will look at the first repsitory and show me eithr the field type (i.e. string(max)) or three dashes if it does not appear.
+I will be able to look along the line horizontally to see a particular field in a module, and wheteher that field eitehr appears in the repo or its type in that repo.
+You only need show me the Repo's it appears in.
+
+So it might be
+
+Field			Repo1           Repo2         Repo3        repo4
+-----------------------------------------------------------------------------                  
+ID			long		guid	      ---          string(10)
+Name			string(50)      string(50)    string(30)   string(50)
+
+
+Another type of report might be: modules, features used across repos
+
+ 		Contact		Finance		Lisitng
+Repo 1		 x              x               x
+Repo2            x              -               x
+
+
+So that's where we are heading, but I don't want you to generate the report now, we just want to gather the data and record it correctly, so this type of report can be drawn up later.
+
+
+
+---------------------
+I defintely want to record if it is derived from another class, or if it is abstract, static or overrides a base class
+
+I feel it might be wise to record what 'this' is in a definition table. That way it's not hard-cded and I can put it in a Initialiser routine if I flush the database. For the moment, lets define 'this' as being able to group by a classes Repository, Solution and Project, with a 'Grouping' term (string(50)) and a 'Feature' term (string(50) nullable). It needs to be unique accross all fields.
+
+Some fields are configured through annotation and some through fluent, so you may want to update the Artifact collector.
+
+So I would like to be able to see the property, it's type and chachteristics (i.e: string(25) or string(max) [DataType(DataType.MultilineText)], [Required, StringLength(60), Display(Name = "Family name")],  [InverseProperty(nameof(DbContactAssociation.Contact))]). Type can also be another class, often a List<childclass>.
+
+Be aware that there are some custom getter and setters too.
+
+I am OK with the type being shown as 'List<childclass>' or 'string(max)'.
+
+Some classes are database schema and some classes are viewmodels
+
+
+Can you quick re-iterate this in your own words and ask any questions.
+    

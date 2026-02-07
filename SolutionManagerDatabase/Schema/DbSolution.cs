@@ -15,8 +15,8 @@ public sealed class DbSolution
 
     public DateTime? CreatedOnUtc { get; set; }
 
-    public string SolutionFilePath { get; set; } = null!; // relative to repo root
-    public string SolutionFile { get; set; } = null!;     // filename only
+    public string? SolutionFilePath { get; set; } = null!; // relative to repo root
+    public string? SolutionFile { get; set; } = null!;     // filename only
 
     public string? ProjectType { get; set; }       // freeform: "MVC", "MAUI", "JS"
     public string? RuntimePlatform { get; set; }   // ".NET", "Node.js"
