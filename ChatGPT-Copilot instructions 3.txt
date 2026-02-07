@@ -53,4 +53,11 @@ Some classes are database schema and some classes are viewmodels
 
 
 Can you quick re-iterate this in your own words and ask any questions.
+
+
+Repo, Solution, Project, Class - Module, feature
+    ,         ,        , DbContact - Contact,
+repo3,        ,        , Contact   - Contact,        
+    ,         ,        , DbEmalilist - Contact, Email
+
     

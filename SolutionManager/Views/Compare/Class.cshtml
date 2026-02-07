@@ -1,0 +1,163 @@
+﻿@using SolutionManagerDatabase.Services.Queries
+@model ClassCompareMatrixDto?
+
+@{
+    ViewData["Title"] = "Class Compare";
+    var key = (string)(ViewBag.Key ?? "");
+    var name = (string)(ViewBag.Name ?? "");
+    var module = (string)(ViewBag.Module ?? "");
+    var visibility = (string)(ViewBag.Visibility ?? "");
+    var feature = (string)(ViewBag.Feature ?? "");
+
+    var classNames = ViewBag.ClassNames as IEnumerable<string> ?? Array.Empty<string>();
+    var modules = ViewBag.Modules as IEnumerable<string> ?? Array.Empty<string>();
+    var visibilities = ViewBag.Visibilities as IEnumerable<string> ?? Array.Empty<string>();
+    var features = ViewBag.Features as IEnumerable<string> ?? Array.Empty<string>();
+
+}
+
+<div class="container mt-4">
+    <h1 class="h3">Class Compare</h1>
+
+    <form method="get" action="/Compare/Class" class="mt-3">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <select name="name" class="form-select">
+                    <option value=""></option>
+
+                    @foreach (var c in (IEnumerable<string>)ViewBag.ClassNames)
+                    {
+                        if (c == name)
+                        {
+                            <option value="@c" selected>@c</option>
+                        }
+                        else
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    }
+                </select>
+
+            </div>
+            <div class="col-md-2">
+                <select name="module" class="form-select">
+                    <option value=""></option>
+                    @foreach (var m in (IEnumerable<string>)ViewBag.Modules)
+                    {
+                        if (m == module)
+                        {
+                            <option value="@m" selected>@m</option>
+                        }
+                        else
+                        {
+                            <option value="@m">@m</option>
+                        }
+                    }
+                </select>
+
+            </div>
+            <div class="col-md-2">
+                <select name="visibility" class="form-select">
+                    <option value=""></option>
+                    @foreach (var v in (IEnumerable<string>)ViewBag.Visibilities)
+                    {
+                        if (v == visibility)
+                        {
+                            <option value="@v" selected>@v</option>
+                        }
+                        else
+                        {
+                            <option value="@v">@v</option>
+                        }
+                    }
+                </select>
+
+            </div>
+            <div class="col-md-2">
+                <select name="feature" class="form-select">
+                    <option value=""></option>
+                    @foreach (var f in (IEnumerable<string>)ViewBag.Features)
+                    {
+                        if (f == feature)
+                        {
+                            <option value="@f" selected>@f</option>
+                        }
+                        else
+                        {
+                            <option value="@f">@f</option>
+                        }
+                    }
+                </select>
+
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit">Compare</button>
+            </div>
+        </div>
+    </form>
+
+
+    @if (!string.IsNullOrWhiteSpace(key) && Model == null)
+    {
+        <div class="alert alert-warning mt-3">
+            No results for key: <strong>@key</strong>
+        </div>
+    }
+
+    @if (Model != null)
+    {
+        <div class="mt-4">
+            <div class="mb-2">
+                <div><strong>Key:</strong> @Model.LogicalClassKey</div>
+                <div>
+                    <strong>Module:</strong> @(Model.Module ?? "—")
+                    &nbsp; <strong>Visibility:</strong> @(Model.Visibility ?? "—")
+                    &nbsp; <strong>Feature:</strong> @(Model.Feature ?? "—")
+                </div>
+                <div><strong>Class:</strong> @Model.ClassName</div>
+                <div><strong>Namespace:</strong> @(Model.Namespace ?? "—")</div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th style="white-space:nowrap;">Kind</th>
+                            <th style="white-space:nowrap;">Member</th>
+
+                            @foreach (var c in Model.Columns)
+                            {
+                                <th>
+                                    <div style="white-space:nowrap;">@c.RepositoryName</div>
+                                    <div class="text-muted" style="white-space:nowrap; font-size: 0.8rem;">
+                                        @c.ProjectName
+                                    </div>
+                                    <div class="text-muted" style="white-space:nowrap; font-size: 0.75rem;">
+                                        @(string.IsNullOrWhiteSpace(c.FileSha256) ? "" : c.FileSha256!.Substring(0, 10))
+                                    </div>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var r in Model.Rows)
+                        {
+                            <tr>
+                                <td style="white-space:nowrap;">@r.MemberKind</td>
+                                <td style="white-space:nowrap;"><strong>@r.MemberName</strong></td>
+
+                                @foreach (var cell in r.Cells.OrderBy(x => x.ColumnIndex))
+                                {
+                                    <td style="white-space:nowrap;">
+                                        @(cell.TypeDisplay ?? "—")
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
